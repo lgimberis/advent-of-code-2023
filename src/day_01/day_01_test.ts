@@ -1,4 +1,4 @@
-import { parseString } from "./day_01_a";
+import { parseString } from "./day_01";
 
 test('numbers at both ends of string', () => {
     expect(parseString('1abc2')).toBe(12);
