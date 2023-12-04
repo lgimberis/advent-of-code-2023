@@ -39,6 +39,11 @@ export function sumPossibleGameIds(gameOutcomes: string, gameSetup: GameSetup): 
     return sum;
 }
 
+export function sumPowersOfMinimumSetsOfCubes(gameOutcomes: string): number {
+    let sum = 0;
+    return sum;
+}
+
 if (require.main === module)
 {
     const fs = require('node:fs')
