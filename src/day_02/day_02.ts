@@ -9,7 +9,7 @@ function isGameValid(splitSets: string[], gameSetup: GameSetup): boolean {
     for (let set of splitSets) {
         for (let colour of ['red', 'green', 'blue']) {
             let match = set.match(new RegExp(`(\\d+) ${colour}`));
-            if (match && match[1] > gameSetup[colour]) {
+            if (match && parseInt(match[1]) > gameSetup[colour]) {
                 return false;
             }
         }
@@ -41,6 +41,29 @@ export function sumPossibleGameIds(gameOutcomes: string, gameSetup: GameSetup): 
 
 export function sumPowersOfMinimumSetsOfCubes(gameOutcomes: string): number {
     let sum = 0;
+
+    let games = gameOutcomes.split('\n');
+    for (let game of games) {
+        let splitGame = game.split(":");
+        if (splitGame.length != 2) {
+            continue;
+        }
+        let sets = splitGame[1];
+        let splitSets = sets.split(";");
+
+        let gameSetup = { red: 0, green: 0, blue: 0 };
+
+        for (let set of splitSets) {
+            for (let colour of ['red', 'green', 'blue']) {
+                let match = set.match(new RegExp(`(\\d+) ${colour}`));
+                if (match && parseInt(match[1]) > gameSetup[colour]) {
+                    gameSetup[colour] = parseInt(match[1]);
+                }
+            }
+        }
+
+        sum += gameSetup.red * gameSetup.green * gameSetup.blue;
+    }
     return sum;
 }
 
@@ -54,5 +77,6 @@ if (require.main === module)
             return;
         }
         console.log(sumPossibleGameIds(data, {red: 12, green: 13, blue: 14}))
+        console.log(sumPowersOfMinimumSetsOfCubes(data))
     });
 }
