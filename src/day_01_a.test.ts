@@ -25,3 +25,22 @@ test('full given sample input', () => {
     treb7uchet`;
     expect(parseString(inputString)).toBe(142);
 })
+
+test('worded numbers count', () => {
+    expect(parseString('two1nine')).toBe(29);
+})
+
+test('worded numbers work with no digits', () => {
+    expect(parseString('eightwothree')).toBe(83);
+})
+
+test('full given second sample input', () => {
+    let inputString = `two1nine
+    eightwothree
+    abcone2threexyz
+    xtwone3four
+    4nineeightseven2
+    zoneight234
+    7pqrstsixteen`
+    expect(parseString(inputString)).toBe(281);
+})

@@ -40,12 +40,15 @@ export function parseString(inputString: string): number {
     return sum;
 }
 
-const fs = require('node:fs')
+if (require.main === module)
+{
+    const fs = require('node:fs')
 
-fs.readFile("./day_01_a_data.txt", "utf8", (err, data) => {
-    if (err) {
-        console.log(err);
-        return;
-    }
-    console.log(parseString(data))
-});
+    fs.readFile("./day_01_a_data.txt", "utf8", (err, data) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        console.log(parseString(data))
+    });
+}
