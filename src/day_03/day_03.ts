@@ -30,6 +30,8 @@ interface CleanData {
 }
 
 function cleanInput(input: string): CleanData {
+    // Removes whitespace and newlines, and establishes dimensions of input data
+
     let trimmedInput = input.split("\n").map(s => s.trim());
     let rows = trimmedInput.length;
     let columns = 0;
@@ -55,8 +57,8 @@ export function sumOfAllPartNumbers(input: string): number {
     while ((array = symbolRe.exec(onelineTrimmedInput)) !== null) {
         mask = updateMask(array, mask, numberOfLines, length)
     }
-
     // Find all numbers and see if any of their indices indicate they should be parts
+
     let digitRe = /\d+/g
     let sum = 0;
     while ((array = digitRe.exec(onelineTrimmedInput)) !== null) {
@@ -69,47 +71,52 @@ export function sumOfAllPartNumbers(input: string): number {
     return sum;
 }
 
-function getAdjacentNumbersFromRow(index: number, cleanedInput: CleanData, {row, column}): number[] {
+function getAdjacentNumbersFromRow(index: number, cleanedInput: CleanData): number[] {
+    // Returns the list of numbers that are 'adjacent' to index, whether on either side or through
+
+    let [row, column] = getRowAndColumn(index, cleanedInput.columns);
     if (index < 0 || row > cleanedInput.rows - 1 || column > cleanedInput.columns - 1) {
         return [];
     }
 
-    let numberToLeftRe = /\d+$/
-    let numberToRightRe = /^\d+/
+    let adjacentNumbers: number[] = [];
+    let addNumber = (n: RegExpMatchArray | null | string[]) => // Define helper which appends matches to adjacentNumbers
+        n ? adjacentNumbers.push(parseInt(n[0])) : null;
 
-    let adjacentNumbers: number[] = []
-    let addNumber = (n: RegExpMatchArray | null | string[]) => n ? adjacentNumbers.push(parseInt(n[0])) : null
+    // Check if the value at index is a digit
+    let centreNumber = cleanedInput.data[index].match(/\d/);
 
-    // Check above and below
-    let centreNumber = cleanedInput.data[index].match(/\d/)
+    // Check for digits to left and right of index
+    let leftNumber = cleanedInput.data.slice(row * cleanedInput.columns, index).match(/\d+$/);
+    let rightNumber = cleanedInput.data.slice(index + 1, (row + 1) * cleanedInput.columns).match(/^\d+/);
 
-    // If no digit above/below, check both diagonals above/below
-    let leftNumber = cleanedInput.data.slice(row * cleanedInput.columns, index).match(numberToLeftRe);
-    let rightNumber = cleanedInput.data.slice(index + 1, (row + 1) * cleanedInput.columns).match(numberToRightRe);
     if (centreNumber) {
-        let str = centreNumber[0]
-        if (leftNumber) str = leftNumber[0] + str
-        if (rightNumber) str = str + rightNumber[0]
-        addNumber([str])
+        // Centre is digit -> combine with left and right for full value
+        let str = centreNumber[0];
+        if (leftNumber) str = leftNumber[0] + str;
+        if (rightNumber) str = str + rightNumber[0];
+        addNumber([str]);
     } else {
+        // Centre is not digit -> possible numbers to left and right are separate
+        addNumber(rightNumber);
         addNumber(leftNumber);
-        addNumber(rightNumber)
     }
 
     return adjacentNumbers;
 }
 
-function gearValue(index: number, cleanedInput: CleanData): number {
-    let [row, column] = getRowAndColumn(index, cleanedInput.columns)
+function getGearValue(index: number, cleanedInput: CleanData): number {
+    // Returns the value of the gear at this index
+    // Returns 0 if it's not a 'gear'
 
-    // Check left and right
-    let centre = getAdjacentNumbersFromRow(index, cleanedInput, {row, column});
-    let above = getAdjacentNumbersFromRow(index - cleanedInput.columns, cleanedInput, {row: (row - 1), column});
-    let below = getAdjacentNumbersFromRow(index + cleanedInput.columns, cleanedInput, {row: (row + 1), column});
+    let centreLineNumbers = getAdjacentNumbersFromRow(index, cleanedInput);
+    let aboveLineNumbers = getAdjacentNumbersFromRow(index - cleanedInput.columns, cleanedInput);
+    let belowLineNumbers = getAdjacentNumbersFromRow(index + cleanedInput.columns, cleanedInput);
 
-    let allNumbers = centre.concat(above).concat(below);
+    let allNumbers = centreLineNumbers.concat(aboveLineNumbers).concat(belowLineNumbers);
     if (allNumbers.length != 2)
     {
+        // By definition gears have two adjacent numbers exactly
         return 0;
     }
     
@@ -119,12 +126,13 @@ function gearValue(index: number, cleanedInput: CleanData): number {
 export function sumOfAllGearRatios(input: string): number {
     let cleanedInput = cleanInput(input);
 
-    let gearRe = /\*/g;
+    let gearRe = /\*/g;  // Finds all possible 'gears'
     let execArray: RegExpExecArray | null;
     let sum = 0;
 
     while((execArray = gearRe.exec(cleanedInput.data)) !== null) {
-        sum += gearValue(execArray.index, cleanedInput);
+        let thisGearValue = getGearValue(execArray.index, cleanedInput);
+        sum += thisGearValue;
     }
 
     return sum;
