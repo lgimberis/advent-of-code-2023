@@ -49,6 +49,10 @@ export function sumOfAllPartNumbers(input: string): number {
     return sum;
 }
 
+export function sumOfAllGearRatios(input: string): number {
+    return 0;
+}
+
 if (require.main === module)
 {
     const fs = require('node:fs')
