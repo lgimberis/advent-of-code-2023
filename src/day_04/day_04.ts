@@ -20,7 +20,9 @@ export function sumPointsOfScratchcards(input: string): number {
 
 }
 
-
+export function totalScratchcardsWon(input: string): number {
+    return 0;
+}
 
 if (require.main === module)
 {
