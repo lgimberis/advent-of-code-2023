@@ -34,14 +34,14 @@ test('example from extended input', () => {
 // Part two
 
 test('wins zero cards', () => {
-    expect(totalScratchcardsWon('Card 1: 31 18 13 56 72 | 74 77 10 23 35 67 36 11')).toBe(0);
+    expect(totalScratchcardsWon('Card 1: 31 18 13 56 72 | 74 77 10 23 35 67 36 11')).toBe(1);
 })
 
 test('one match and wins one card', () => {
     let sampleInput = `Card 1: 41 48 83 86 17 | 83 85  6 31 18  9 49 53
     Card 2: 31 18 13 56 72 | 74 77 10 23 35 67 36 11`
 
-    expect(totalScratchcardsWon(sampleInput)).toBe(1);
+    expect(totalScratchcardsWon(sampleInput)).toBe(3);
 })
 
 test('sample input', () => {
