@@ -28,7 +28,7 @@ test('full sample input', () => {
 
 test('example from extended input', () => {
     let sampleInput = 'Card 141: 85 31 79 11 41 81 46  9 10 70 | 38 85 77 30 70 92 10  9 46 86 45 79 19 97 31 74  5 67 15 41 73 66 11  8 14';
-    expect(sumPointsOfScratchcards(sampleInput)).toBe(512);
+    expect(sumPointsOfScratchcards(sampleInput)).toBe(256);
 })
 
 // Part two
