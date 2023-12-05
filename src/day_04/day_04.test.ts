@@ -22,6 +22,11 @@ test('full sample input', () => {
     Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83
     Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
     Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11`;
-    
+
     expect(sumPointsOfScratchcards(sampleInput)).toBe(13);
+})
+
+test('example from extended input', () => {
+    let sampleInput = 'Card 141: 85 31 79 11 41 81 46  9 10 70 | 38 85 77 30 70 92 10  9 46 86 45 79 19 97 31 74  5 67 15 41 73 66 11  8 14';
+    expect(sumPointsOfScratchcards(sampleInput)).toBe(512);
 })
