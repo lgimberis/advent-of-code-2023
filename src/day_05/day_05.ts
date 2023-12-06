@@ -1,23 +1,50 @@
 
-export function createMap(mapDefinition: number[]): (v: number) => number {
-    // Returns a function which will map a single argument value according to given definition
+interface ValueRange {
+    start: number;
+    end: number;
+    offset: number;
+}
+
+export function createMap(mapDefinition: number[]): (v: ValueRange) => Generator<ValueRange, any, unknown> {
+    // Returns a generator which will map a single argument value according to given definition
 
     if (mapDefinition.length % 3 !== 0) {
         console.error("mapDefinition of length %d should be multiple of 3", mapDefinition.length)
     }
 
-    return (v: number) => {
-        for (let i = 0; i < mapDefinition.length; i += 3) {
-            let start = mapDefinition[i + 1];
-            let end = mapDefinition[i + 1] + mapDefinition[i + 2] - 1;
-            let output = mapDefinition[i];
+    let map: {start: number, end: number, offset: number}[] = [];
+    for (let i = 0; i < mapDefinition.length; i += 3) {
+        let start = mapDefinition[i + 1];
+        let end = mapDefinition[i + 1] + mapDefinition[i + 2] - 1;
+        let offset = mapDefinition[i] - start;
 
-            if (v >= start && v <= end) {
-                return output + (v - start);
+        map.push({start, end, offset});
+    }
+
+    map.sort((a, b) => a.start - b.start);
+
+    let contiguousMap: ValueRange[] = [{start: Math.min(0, map[0].start - 1), end: map[0].start - 1, offset: 0}]
+    for (let i = 0; i < map.length; i++) {
+        contiguousMap.push({start: map[i].start, end: map[i].end, offset: map[i].offset});
+        if (i < map.length - 1) {
+            if (map[i+1].start > map[i].end + 1) {
+                contiguousMap.push({start: map[i].end + 1, end: map[i+1].start - 1, offset: 0});
             }
         }
-        return v;
     }
+    contiguousMap.push({start: map[map.length - 1].end + 1, end: Number.MAX_SAFE_INTEGER, offset: 0})
+
+    return function* (v: ValueRange): Generator<any, any, ValueRange>{
+        for (let {start, end, offset} of contiguousMap) {
+            if (v.start + v.offset <= end && v.end + v.offset >= start) {
+                yield { 
+                    start: Math.max(start - v.offset, v.start),
+                    end: Math.min(v.end, end - v.offset), 
+                    offset: v.offset + offset
+                };
+            }
+        }
+    }    
 }
 
 export function interpretInput(input: string): {[key: string]: number[]} {
@@ -43,20 +70,23 @@ interface ValueMapper {
 
 interface MapperChain {[key: string]: ValueMapper}
 
-function consumeMapper(seed: {label: string, value: number}, mappers: MapperChain) {
+function consumeMapper(seed: {label: string, range: ValueRange}, mappers: MapperChain): number | null {
     // Given initial data, exhaust all mappers to return all discoverable data
 
-    let finalOutput = {}
-    finalOutput[seed.label] = seed.value;
-
-    let currentLabel = seed.label;
-    while (mappers.hasOwnProperty(currentLabel)) {
-        // Set the value that the current label maps onto, and prepare the next label
-        finalOutput[mappers[currentLabel].destination] = mappers[currentLabel].map(finalOutput[currentLabel]);
-        currentLabel = mappers[currentLabel].destination
+    if (mappers.hasOwnProperty(seed.label)) {
+        let gen: Generator<ValueRange, any, unknown> = mappers[seed.label].map(seed.range);
+        let next: IteratorResult<any, any>;
+        let lowestLocation: number | null = null;
+        while ((next = gen.next()) && next.value) {
+            let minimumLocationOfRange = consumeMapper({label: mappers[seed.label].destination, range: next.value}, mappers);
+            if (minimumLocationOfRange && (lowestLocation === null || minimumLocationOfRange! < lowestLocation!)) {
+                lowestLocation = minimumLocationOfRange;
+            }
+        }
+        return lowestLocation;
+    } else {
+        return seed.range.start + seed.range.offset;
     }
-
-    return finalOutput;
 }
 
 function getNextMapper(source: string, input: {[key: string]: number[]}): ValueMapper | null {
@@ -99,21 +129,10 @@ export function findLowestLocationNumber(input: string): number {
     let seeds = processedInput["seeds"];
     let lowestLocation: number | null = null
     for (let i = 0; i < seeds.length; i += 2) {
-        console.debug("Checking from %d to %d", seeds[i], seeds[i + 1] + seeds[i])
-        let timenow = Date.now()
-        for (let seedValue = seeds[i]; seedValue < seeds[i] + seeds[i + 1]; seedValue++)
-        {
-            let timehere = Date.now();
-            if (timehere - timenow > 10000) {
-                timenow = timehere;
-                console.debug("Done %d/%d seeds", seedValue - seeds[i], seeds[i+1])
-            }
-            let seed = consumeMapper({label: 'seed', value: seedValue}, mappers);
-            if (seed.hasOwnProperty("location")) {
-                if (lowestLocation === null || seed["location"] < lowestLocation) {
-                    lowestLocation = seed["location"]
-                }
-            }
+        let seedRange = { start: seeds[i], end: seeds[i] + seeds[i + 1] - 1, offset: 0};
+        let thisRangeLowestLocation = consumeMapper({label: 'seed', range: seedRange}, mappers);
+        if (thisRangeLowestLocation && (lowestLocation === null || lowestLocation > thisRangeLowestLocation)) {
+            lowestLocation = thisRangeLowestLocation;
         }
     }
 
