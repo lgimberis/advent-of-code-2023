@@ -55,5 +55,5 @@ humidity-to-location map:
 
 
 test('full sample input', () => {
-    expect(findLowestLocationNumber(sampleInput)).toBe(35);
+    expect(findLowestLocationNumber(sampleInput)).toBe(46);
 })
