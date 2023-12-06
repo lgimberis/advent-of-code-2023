@@ -1,4 +1,4 @@
-import { findLowestLocationNumber, useMap, createMap } from "./day_05"
+import { findLowestLocationNumber, interpretInput, createMap } from "./day_05"
 
 test.each([
     [0, 0],
@@ -13,8 +13,9 @@ test.each([
     let mapDefinition = `seed-to-soil map:
     50 98 2
     52 50 48`
-    let map = createMap(mapDefinition)
-    expect(useMap(map, input)).toBe(expected);
+    let interpretedDefinition = interpretInput(mapDefinition);
+    let map = createMap(interpretedDefinition['seed-to-soil map'])
+    expect(map(input)).toBe(expected);
 })
 
 
