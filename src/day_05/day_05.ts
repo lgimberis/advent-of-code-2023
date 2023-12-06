@@ -97,6 +97,12 @@ export function findLowestLocationNumber(input: string): number {
     let mappers = generateMappers(processedInput);
 
     let seeds = processedInput["seeds"];
+    let allSeeds: number[] = []
+    for (let i = 0; i < seeds.length; i += 2) {
+        let range = Array.from({length: seeds[i + 1]}, (_, j) => seeds[i] + j)
+        allSeeds = allSeeds.concat(range);
+    }
+    seeds = allSeeds;
     let lowestLocation: number | null = null
     for (let seedValue of seeds) {
         let seed = consumeMapper({label: 'seed', value: seedValue}, mappers);
