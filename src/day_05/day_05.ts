@@ -99,8 +99,15 @@ export function findLowestLocationNumber(input: string): number {
     let seeds = processedInput["seeds"];
     let lowestLocation: number | null = null
     for (let i = 0; i < seeds.length; i += 2) {
+        console.debug("Checking from %d to %d", seeds[i], seeds[i + 1] + seeds[i])
+        let timenow = Date.now()
         for (let seedValue = seeds[i]; seedValue < seeds[i] + seeds[i + 1]; seedValue++)
         {
+            let timehere = Date.now();
+            if (timehere - timenow > 10000) {
+                timenow = timehere;
+                console.debug("Done %d/%d seeds", seedValue - seeds[i], seeds[i+1])
+            }
             let seed = consumeMapper({label: 'seed', value: seedValue}, mappers);
             if (seed.hasOwnProperty("location")) {
                 if (lowestLocation === null || seed["location"] < lowestLocation) {
