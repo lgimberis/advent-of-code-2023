@@ -1,7 +1,7 @@
 import { getStepsToReach } from "./day_08";
 
 test("full sample input", () => {
-    let sampleInput = `RL
+  let sampleInput = `RL
 
     AAA = (BBB, CCC)
     BBB = (DDD, EEE)
@@ -11,15 +11,15 @@ test("full sample input", () => {
     GGG = (GGG, GGG)
     ZZZ = (ZZZ, ZZZ)`;
 
-    expect(getStepsToReach(sampleInput, "ZZZ")).toBe(2);
+  expect(getStepsToReach(sampleInput, "ZZZ")).toBe(2);
 });
 
 test("second sample input", () => {
-    let sampleInput = `LLR
+  let sampleInput = `LLR
 
     AAA = (BBB, BBB)
     BBB = (AAA, ZZZ)
     ZZZ = (ZZZ, ZZZ)`;
 
-    expect(getStepsToReach(sampleInput, "ZZZ")).toBe(6);
-})
+  expect(getStepsToReach(sampleInput, "ZZZ")).toBe(6);
+});
