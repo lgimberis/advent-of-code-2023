@@ -1,6 +1,11 @@
+
+export function totalWinnings(input: string): number {
+    return 0;
+}
+
 function main(data: string)
 {
-    console.log(data);
+    console.log(totalWinnings(data));
 }
 
 if (require.main === module)
