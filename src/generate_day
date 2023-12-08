@@ -4,3 +4,21 @@ touch day_$1.test.ts
 touch day_$1.ts
 touch day_$1_description.txt
 touch day_$1_data.txt
+
+echo "function main(data: string)
+{
+    console.log(data);
+}
+
+if (require.main === module)
+{
+    const fs = require('node:fs')
+
+    fs.readFile("./day_$1_data.txt", "utf8", (err, data) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        main(data);
+    });
+}" >> day_$1.ts
