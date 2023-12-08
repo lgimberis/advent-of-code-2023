@@ -65,7 +65,14 @@ function interpretHandType(hands: Hand[]): Hand[] {
                 handCounts[card] = 1;
             }
         }
-        let cardCounts = Object.values(handCounts);
+        let handCountsWithoutJokers = Object.entries(handCounts).filter(([key, value]) => (key != 'J'));
+        let cardCounts = handCountsWithoutJokers.map(([key, value]) => value);
+        if (cardCounts.length > 0) {
+            cardCounts[cardCounts.indexOf(Math.max(...cardCounts))] += 5 - Object.values(cardCounts).reduce((sum, v) => sum + v, 0);
+        } else {
+            cardCounts = [5]; // What a load of jokers
+        }
+        
         updatedHands.push({...hand, type: determineHandType(cardCounts)});
     }
     return updatedHands;
@@ -80,7 +87,7 @@ function cardValue(card: string): number {
         case 'Q':
             return 12;
         case 'J':
-            return 11;
+            return 1;
         case 'T':
             return 10;
         default:
