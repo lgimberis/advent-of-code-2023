@@ -1,4 +1,4 @@
-import { productOfRecordBreakingPlays } from "./day_06";
+import { productOfRecordBreakingPlays, recordBreakingPlaysInKernedInput } from "./day_06";
 
 test('first race', () => {
     let sampleInput = `Time:      7
@@ -10,4 +10,10 @@ test('full sample input', () => {
     let sampleInput = `Time:      7  15   30
     Distance:  9  40  200`;
     expect(productOfRecordBreakingPlays(sampleInput)).toBe(288);
+})
+
+test('sample race', () => {
+    let sampleInput = `Time:      7  15   30
+    Distance:  9  40  200`;
+    expect(recordBreakingPlaysInKernedInput(sampleInput)).toBe(71503);
 })

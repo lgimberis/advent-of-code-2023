@@ -35,6 +35,12 @@ export function productOfRecordBreakingPlays(input: string): number {
     return product;
 }
 
+export function recordBreakingPlaysInKernedInput(input: string): number {
+    let {times, distances} = interpretInput(input);
+
+    return 0;
+}
+
 function main(data: string)
 {
     console.log(productOfRecordBreakingPlays(data));
