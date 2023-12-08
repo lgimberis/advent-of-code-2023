@@ -1,0 +1,6 @@
+mkdir day_$1
+cd day_$1
+touch day_$1.test.ts
+touch day_$1.ts
+touch day_$1_description.txt
+touch day_$1_data.txt
