@@ -1,31 +1,36 @@
 
-function winningPlaysWithinTime(time: string, distance: string): number {
-    let timeNum = parseInt(time)
-    let distanceNum = parseInt(distance)
-    
+function recordBreakingPlaysWithinTime(time: number, distance: number): number {
     let winningPlays = 0;
-    for (let i = 0; i <= timeNum; i++) {
-        if (i * (timeNum - i) > distanceNum) {
+    for (let buttonHeldFor = 0; buttonHeldFor <= time; buttonHeldFor++) {
+        let velocity = buttonHeldFor;
+        let remainingTime = time - buttonHeldFor;
+        if (velocity * remainingTime > distance) {
             winningPlays++;
         }
     }
     return winningPlays
 }
 
-export function productOfRecordBreakingPlays(input: string): number {
+function interpretInput(input: string): {times: number[], distances: number[]} {
     let lines = input.split("\n");
-    if (lines.length < 2) return -1;
+    if (lines.length < 2) throw Error('Expect two lines')
 
-    let times = lines[0].matchAll(/\d+/g)
-    let distances = lines[1].matchAll(/\d+/g)
-    if (!times || !distances) return -1;
+    let timeMatch = lines[0].match(/\d+/g)
+    let distanceMatch = lines[1].match(/\d+/g)
+    if (!timeMatch || !distanceMatch) throw Error('Expect times and distances to have values defined')
 
-    let time;
-    let distance;
+    let times = timeMatch.map(t => parseInt(t));
+    let distances = distanceMatch.map(d => parseInt(d));
+
+    return {times, distances}
+}
+
+export function productOfRecordBreakingPlays(input: string): number {
+    let {times, distances} = interpretInput(input);
+
     let product = 1;
-    while ((time = times.next()) !== null && (distance = distances.next()) !== null && !time.done && !distance.done) {
-        if (time.value[0] && distance.value[0])
-        product *= winningPlaysWithinTime(time.value[0], distance.value[0]);
+    for (let i = 0; i < Math.min(times.length, distances.length); i++) {
+        product *= recordBreakingPlaysWithinTime(times[i], distances[i]);
     }
     return product;
 }
