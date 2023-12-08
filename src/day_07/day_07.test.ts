@@ -15,5 +15,5 @@ test('full sample input', () => {
     KTJJT 220
     QQQJA 483`;
 
-    expect(totalWinnings(sampleInput)).toBe(6440);
+    expect(totalWinnings(sampleInput)).toBe(5905);
 })
