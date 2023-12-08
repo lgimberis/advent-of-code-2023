@@ -38,12 +38,15 @@ export function productOfRecordBreakingPlays(input: string): number {
 export function recordBreakingPlaysInKernedInput(input: string): number {
     let {times, distances} = interpretInput(input);
 
-    return 0;
+    let actualKernedTime = parseInt(times.map(t => t.toString()).join(""))
+    let actualKernedDistance = parseInt(distances.map(d => d.toString()).join(""))
+
+    return recordBreakingPlaysWithinTime(actualKernedTime, actualKernedDistance);
 }
 
 function main(data: string)
 {
-    console.log(productOfRecordBreakingPlays(data));
+    console.log(recordBreakingPlaysInKernedInput(data));
 }
 
 if (require.main === module)
