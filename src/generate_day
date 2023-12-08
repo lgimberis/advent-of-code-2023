@@ -14,7 +14,7 @@ if (require.main === module)
 {
     const fs = require('node:fs')
 
-    fs.readFile("./day_$1_data.txt", "utf8", (err, data) => {
+    fs.readFile(\"./day_$1_data.txt\", \"utf8\", (err, data) => {
         if (err) {
             console.log(err);
             return;
