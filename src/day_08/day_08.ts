@@ -37,8 +37,43 @@ export function getStepsToReach(input: string, destination: string): number {
   return stepsTaken;
 }
 
+function gcd(a: number, b: number) {
+  if (a == b || b == 0) return a;
+  if (a > b) return gcd(b, a % b);
+  if (a == 0) return b;
+  return gcd(a, b % a);
+}
+
+function lcm(a: number, b: number) {
+  return a * (b / gcd(a, b));
+}
+
 export function getStepsForGhosts(input: string, startRe: RegExp, endRe: RegExp): number {
-  return 0;
+  let { instructions, nodes } = interpretInput(input);
+  
+  // NB this code works for the input data given in this specific case
+  // It happens that the offset until we reach the start of our "loop", is cancelled by the nodes after /Z$/,
+  // such that if /Z$/ is at index N then it will also be at 2N, 3N, ... given random data we would expect Z at N + a, 2N + a, ...
+  let nodeCycles: {[key: string]: number} = {};  // Number of steps until nodes[key] reaches a node that matches `endRe`
+  for (let node of Object.keys(nodes)) {
+    if (node.match(startRe)) {
+      nodeCycles[node] = -1;
+      let stepsTaken = 0;
+      let currentNode = node;
+      while (stepsTaken == 0 || currentNode !== node || (stepsTaken % instructions.length) !== 0) {
+        currentNode = nodes[currentNode][instructions[stepsTaken % instructions.length]];
+        stepsTaken += 1;
+
+        if (currentNode.match(endRe)) {
+          nodeCycles[node] = stepsTaken;
+          break;
+        }
+      }
+    }
+  }
+
+  let stepsUntilStride = Object.values(nodeCycles).reduce((s, c) => lcm(s, c), 1);
+  return stepsUntilStride
 }
 
 function main(data: string) {

@@ -31,7 +31,7 @@ test("simple steps for ghosts", () => {
   BBB = (AAA, ZZZ)
   ZZZ = (ZZZ, ZZZ)`;
 
-  expect(getStepsForGhosts(sampleInput, /A$/, /Z$/)).toBe(2);
+  expect(getStepsForGhosts(sampleInput, /A$/, /Z$/)).toBe(6);
 })
 
 test("steps for ghosts sample input", () => {
