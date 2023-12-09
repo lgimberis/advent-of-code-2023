@@ -33,8 +33,13 @@ export function sumOfExtrapolatedValues(input: string) {
   return sum;
 }
 
+export function sumOfBackwardsExtrapolatedValues(input: string) {
+  return 0;
+}
+
 function main(data: string) {
   console.log(sumOfExtrapolatedValues(data));
+  console.log(sumOfBackwardsExtrapolatedValues(data));
 }
 
 if (require.main === module) {

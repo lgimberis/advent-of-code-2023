@@ -1,4 +1,4 @@
-import { sumOfExtrapolatedValues } from "./day_09";
+import { sumOfExtrapolatedValues, sumOfBackwardsExtrapolatedValues } from "./day_09";
 
 
 test("simple input", () => {
@@ -22,3 +22,21 @@ test("test", () => {
 
     expect(sumOfExtrapolatedValues(sampleInput)).toBe(23502);
 })
+
+// Part 2
+
+test("simple input backwards", () => {
+    expect(sumOfBackwardsExtrapolatedValues("0 3")).toBe(-3);
+})
+
+test("growing input backwards", () => {
+    expect(sumOfBackwardsExtrapolatedValues("0 1 3")).toBe(0);
+});
+
+test("full sample input backwards", () => {
+  let sampleInput = `0 3 6 9 12 15
+  1 3 6 10 15 21
+  10 13 16 21 30 45`;
+
+  expect(sumOfBackwardsExtrapolatedValues(sampleInput)).toBe(2);
+});
