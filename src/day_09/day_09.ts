@@ -1,5 +1,36 @@
+function interpretInput(input: string): number[][] {
+  let lines = input.split("\n");
+  let numbers: number[][] = [];
+  for (let line of lines) {
+    let match = line.match(/\-?\d+/g);
+    if (!match) continue;
+    numbers.push(match.map(n => parseInt(n)));
+  }
+  return numbers;
+}
+
+function findLowerLevelDifference(line: number[]): number[] {
+  let lowerLevel: number[] = [];
+  for (let i = 0; i < line.length - 1; i++) {
+    lowerLevel.push(line[i + 1] - line[i]);
+  }
+  return lowerLevel;
+}
+
+function extrapolateLine(line: number[]): number {
+  if (line.length == 0 || line.every(n => n === 0)) return 0;
+  let lowerLineExtrapolation = extrapolateLine(findLowerLevelDifference(line));
+  return line[line.length - 1] + lowerLineExtrapolation;
+}
+
 export function sumOfExtrapolatedValues(input: string) {
-  return 0;
+  let numbers = interpretInput(input);
+  let sum = 0;
+  for (let line of numbers) {
+    sum += extrapolateLine(line);
+  }
+
+  return sum;
 }
 
 function main(data: string) {

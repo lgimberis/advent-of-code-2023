@@ -16,3 +16,9 @@ test("full sample input", () => {
 
   expect(sumOfExtrapolatedValues(sampleInput)).toBe(114);
 });
+
+test("test", () => {
+    let sampleInput = "-4 12 56 141 280 486 772 1151 1636 2240 2976 3857 4896 6106 7500 9091 10892 12916 15176 17685 20456";
+
+    expect(sumOfExtrapolatedValues(sampleInput)).toBe(23502);
+})
