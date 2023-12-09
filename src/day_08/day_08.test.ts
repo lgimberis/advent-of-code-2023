@@ -1,4 +1,4 @@
-import { getStepsToReach } from "./day_08";
+import { getStepsToReach, getStepsForGhosts } from "./day_08";
 
 test("full sample input", () => {
   let sampleInput = `RL
@@ -23,3 +23,28 @@ test("second sample input", () => {
 
   expect(getStepsToReach(sampleInput, "ZZZ")).toBe(6);
 });
+
+test("simple steps for ghosts", () => {
+  let sampleInput = `LLR
+
+  AAA = (BBB, BBB)
+  BBB = (AAA, ZZZ)
+  ZZZ = (ZZZ, ZZZ)`;
+
+  expect(getStepsForGhosts(sampleInput, /A$/, /Z$/)).toBe(2);
+})
+
+test("steps for ghosts sample input", () => {
+  let sampleInput = `LR
+
+  11A = (11B, XXX)
+  11B = (XXX, 11Z)
+  11Z = (11B, XXX)
+  22A = (22B, XXX)
+  22B = (22C, 22C)
+  22C = (22Z, 22Z)
+  22Z = (22B, 22B)
+  XXX = (XXX, XXX)`;
+
+  expect(getStepsForGhosts(sampleInput, /A$/, /Z$/)).toBe(6);
+})

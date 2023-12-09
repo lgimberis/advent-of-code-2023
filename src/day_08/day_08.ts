@@ -37,8 +37,12 @@ export function getStepsToReach(input: string, destination: string): number {
   return stepsTaken;
 }
 
+export function getStepsForGhosts(input: string, startRe: RegExp, endRe: RegExp): number {
+  return 0;
+}
+
 function main(data: string) {
-  console.log(getStepsToReach(data, "ZZZ"));
+  console.log(getStepsForGhosts(data, /A$/, /Z$/));
 }
 
 if (require.main === module) {
