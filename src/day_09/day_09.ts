@@ -1,5 +1,9 @@
+export function sumOfExtrapolatedValues(input: string) {
+  return 0;
+}
+
 function main(data: string) {
-  console.log(data);
+  console.log(sumOfExtrapolatedValues(data));
 }
 
 if (require.main === module) {
