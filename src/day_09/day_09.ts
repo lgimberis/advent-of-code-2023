@@ -33,8 +33,20 @@ export function sumOfExtrapolatedValues(input: string) {
   return sum;
 }
 
+function extrapolateLineBackwards(line: number[]): number {
+  if (line.length == 0 || line.every(n => n === 0)) return 0;
+  let lowerLineExtrapolation = extrapolateLineBackwards(findLowerLevelDifference(line));
+  return line[0] - lowerLineExtrapolation;
+}
+
 export function sumOfBackwardsExtrapolatedValues(input: string) {
-  return 0;
+  let numbers = interpretInput(input);
+  let sum = 0;
+  for (let line of numbers) {
+    sum += extrapolateLineBackwards(line);
+  }
+
+  return sum;
 }
 
 function main(data: string) {
