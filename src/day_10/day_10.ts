@@ -1,5 +1,9 @@
+export function stepsToReachFurthestPipeInLoop(input: string): number {
+  return 0;
+}
+
 function main(data: string) {
-  console.log(data);
+  console.log(stepsToReachFurthestPipeInLoop(data));
 }
 
 if (require.main === module) {
