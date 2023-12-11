@@ -1,6 +1,6 @@
 enum TileType {
   GROUND,
-  ANIMAL,
+  ANIMAL, // The tile the animal is on (the 'animal' tile) has exactly 2 connections, but their directions are unknown
   VERTICAL,
   HORIZONTAL,
   NORTHEAST,
@@ -10,21 +10,17 @@ enum TileType {
 }
 
 enum Direction {
-  NORTH,
-  EAST,
-  SOUTH,
-  WEST
+  NORTH = 0,
+  EAST = 1,
+  SOUTH = 2,
+  WEST = 3
 }
 
 function oppositeDirection(d: Direction): Direction {
   return (d + 2) % 4;
 }
 
-class TileTypeClass {
-  connections: Direction[]
-  constructor(connections: Direction[]) { this.connections = connections; }
-}
-
+// Define the directions to which a tile of given type is/may be connected
 const TileTypeDirections: {[key: string]: Direction[]} = {
   [TileType.GROUND]: [],
   [TileType.ANIMAL]: [Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST],
@@ -35,8 +31,8 @@ const TileTypeDirections: {[key: string]: Direction[]} = {
   [TileType.SOUTHWEST]: [Direction.SOUTH, Direction.WEST],
   [TileType.NORTHWEST]: [Direction.WEST, Direction.NORTH],
 }
-function mapInputCharacterToTileType(input: string) {
 
+function mapInputCharacterToTileType(input: string) {
   switch (input) {
     case '.':
       return TileType.GROUND;
@@ -84,7 +80,7 @@ function interpretInput(input: string): {tiles: TileType[], mapWidth: number, ma
 }
 
 function findAdjacentTileIndices(index: number, mapWidth: number, mapHeight: number): {[key: number]: number} {
-  // Returns a list of indices which are "adjacent" to the tile at given index
+  // Returns a list of indices which are "adjacent" to the tile at given index, accounting for being at the "edges"
 
   let x = index % mapWidth;
   let y = Math.floor(index / mapWidth);
@@ -105,50 +101,21 @@ function findConnectedAdjacentTiles(tiles: TileType[], index: number, mapWidth: 
   let connectedTiles: {index: number, direction: Direction}[] = [];
 
   for (let direction of TileTypeDirections[tiles[index]]) {
-    if (adjacentTiles.hasOwnProperty(direction) && 
-    TileTypeDirections[tiles[adjacentTiles[direction]]].includes(oppositeDirection(direction))) {
-      connectedTiles.push({index: adjacentTiles[direction], direction});
+    if (adjacentTiles.hasOwnProperty(direction)) {
+      // If there is a tile in a direction to which the current tile is connected, it doesn't necessarily connect on this tile
+
+      let adjacentTile = tiles[adjacentTiles[direction]];
+      let isAdjacentTileConnected = TileTypeDirections[adjacentTile].includes(oppositeDirection(direction));
+      if (isAdjacentTileConnected)
+      {
+        connectedTiles.push({index: adjacentTiles[direction], direction});
+      }
     }
   }
   return connectedTiles;
 }
 
-export function stepsToReachFurthestPipeInLoop(input: string): number {
-  let {tiles, mapWidth, mapHeight} = interpretInput(input);
-
-  // find the "animal" tile
-  let animalTile = tiles.indexOf(TileType.ANIMAL);
-
-  // find adjacent tiles of the animal tile
-  let animalAdjacentTiles = findConnectedAdjacentTiles(tiles, animalTile, mapWidth, mapHeight);
-
-  for (let possibleLoopStartTile of animalAdjacentTiles) {
-    let previousTile = animalTile;
-    let currentTile = possibleLoopStartTile;
-    let startIndex = 0;
-
-    let connectedTiles: {index: number, direction: Direction}[]
-    while((connectedTiles = findConnectedAdjacentTiles(tiles, currentTile.index, mapWidth, mapHeight)).length > 1) {
-      connectedTiles = connectedTiles.filter(t => t.index != previousTile);
-      if (connectedTiles.length > 1) {
-        console.error("Somehow a tile has more than one non-previous connected tiles!", connectedTiles, currentTile);
-      }
-      
-      if (connectedTiles[0].index == animalTile) {
-        return Math.floor((startIndex + 2) / 2);
-      }
-      startIndex += 1;
-      previousTile = currentTile.index; 
-      currentTile = connectedTiles[0];
-    }
-  }
-
-  return -1; // Couldn't find a loop
-}
-
-export function tilesEnclosedBy(input: string): number {
-  let {tiles, mapWidth, mapHeight} = interpretInput(input);
-
+function findLoopContainingAnimal(tiles: TileType[], mapWidth: number, mapHeight: number): {isPartOfLoop: boolean[], loopTiles: {index: number, direction: Direction}[]} {
   // find the "animal" tile
   let animalTile = tiles.indexOf(TileType.ANIMAL);
 
@@ -184,6 +151,24 @@ export function tilesEnclosedBy(input: string): number {
     }
   }
 
+  return {isPartOfLoop, loopTiles}
+}
+
+export function stepsToReachFurthestPipeInLoop(input: string): number {
+  let {tiles, mapWidth, mapHeight} = interpretInput(input);
+
+  let { isPartOfLoop, loopTiles } = findLoopContainingAnimal(tiles, mapWidth, mapHeight);
+
+  return Math.floor(loopTiles.length / 2);
+}
+
+export function tilesEnclosedBy(input: string): number {
+  let {tiles, mapWidth, mapHeight} = interpretInput(input);
+
+  let { isPartOfLoop, loopTiles } = findLoopContainingAnimal(tiles, mapWidth, mapHeight);
+
+  let animalTile = tiles.indexOf(TileType.ANIMAL);
+
   // Replace the 'Animal' tile with the actual pipe connection
   let animalTileNewType = [loopTiles[0].direction, oppositeDirection(loopTiles[loopTiles.length - 1].direction)];
   for (let [k, v] of Object.entries(TileTypeDirections)) {
@@ -193,9 +178,7 @@ export function tilesEnclosedBy(input: string): number {
   }
 
   // Having filled isPartOfLoop, iterate over it horizontally to find enclosed tiles
-  // TODO vertically?
   let enclosedTiles = 0;
-
   
   for (let row = 0; row < mapHeight; row++) {
     let isEnclosing = false;
