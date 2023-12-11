@@ -16,20 +16,24 @@ enum Direction {
   WEST
 }
 
+function oppositeDirection(d: Direction): Direction {
+  return (d + 2) % 4;
+}
+
 class TileTypeClass {
   connections: Direction[]
   constructor(connections: Direction[]) { this.connections = connections; }
 }
 
-const TileTypeCo: {[key: string]: TileTypeClass} = {
-  [TileType.GROUND]: new TileTypeClass([]),
-  [TileType.ANIMAL]: new TileTypeClass([Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST]),
-  [TileType.VERTICAL]: new TileTypeClass([Direction.NORTH, Direction.SOUTH]),
-  [TileType.HORIZONTAL]: new TileTypeClass([Direction.EAST, Direction.WEST]),
-  [TileType.NORTHEAST]: new TileTypeClass([Direction.NORTH, Direction.EAST]),
-  [TileType.SOUTHEAST]: new TileTypeClass([Direction.EAST, Direction.SOUTH]),
-  [TileType.SOUTHWEST]: new TileTypeClass([Direction.SOUTH, Direction.WEST]),
-  [TileType.NORTHWEST]: new TileTypeClass([Direction.WEST, Direction.NORTH]),
+const TileTypeDirections: {[key: string]: Direction[]} = {
+  [TileType.GROUND]: [],
+  [TileType.ANIMAL]: [Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST],
+  [TileType.VERTICAL]: [Direction.NORTH, Direction.SOUTH],
+  [TileType.HORIZONTAL]: [Direction.EAST, Direction.WEST],
+  [TileType.NORTHEAST]: [Direction.NORTH, Direction.EAST],
+  [TileType.SOUTHEAST]: [Direction.EAST, Direction.SOUTH],
+  [TileType.SOUTHWEST]: [Direction.SOUTH, Direction.WEST],
+  [TileType.NORTHWEST]: [Direction.WEST, Direction.NORTH],
 }
 function mapInputCharacterToTileType(input: string) {
 
@@ -56,7 +60,7 @@ function mapInputCharacterToTileType(input: string) {
   }
 }
 
-function interpretInput(input: string): {tiles: TileType[], mapWidth: number} {
+function interpretInput(input: string): {tiles: TileType[], mapWidth: number, mapHeight: number} {
   let lines = input.split("\n");
   let tiles: TileType[] = []
   let mapWidth = -1;
@@ -75,7 +79,8 @@ function interpretInput(input: string): {tiles: TileType[], mapWidth: number} {
       tiles.push(mapInputCharacterToTileType(s));
     }
   }
-  return {tiles, mapWidth};
+  let mapHeight = Math.floor(tiles.length / mapWidth);
+  return {tiles, mapWidth, mapHeight};
 }
 
 function findAdjacentTileIndices(index: number, mapWidth: number, mapHeight: number): {[key: number]: number} {
@@ -93,33 +98,23 @@ function findAdjacentTileIndices(index: number, mapWidth: number, mapHeight: num
   return adjacentTiles;
 }
 
-function findConnectedAdjacentTiles(tiles: TileType[], index: number, mapWidth: number, mapHeight: number): number[] {
+function findConnectedAdjacentTiles(tiles: TileType[], index: number, mapWidth: number, mapHeight: number): {index: number, direction: Direction}[] {
   // Returns an array of indices of tiles connected to the tile at index
 
   let adjacentTiles = findAdjacentTileIndices(index, mapWidth, mapHeight);
-  let connectedTiles: number[] = [];
+  let connectedTiles: {index: number, direction: Direction}[] = [];
 
-  const directionValidTileTypes: {[direction: number]: TileType[]} = {
-    [Direction.NORTH]: [TileType.ANIMAL, TileType.VERTICAL, TileType.SOUTHEAST, TileType.SOUTHWEST],
-    [Direction.EAST]: [TileType.ANIMAL, TileType.HORIZONTAL, TileType.NORTHWEST, TileType.SOUTHWEST],
-    [Direction.SOUTH]: [TileType.ANIMAL, TileType.VERTICAL, TileType.NORTHEAST, TileType.NORTHWEST],
-    [Direction.WEST]: [TileType.ANIMAL, TileType.HORIZONTAL, TileType.NORTHEAST, TileType.SOUTHEAST]
-  };
-  for (let direction of TileTypeCo[tiles[index]].connections) {
-    if (adjacentTiles.hasOwnProperty(direction)) {
-      if (directionValidTileTypes[direction].includes(tiles[adjacentTiles[direction]])) {
-        connectedTiles.push(adjacentTiles[direction]);
-      }
+  for (let direction of TileTypeDirections[tiles[index]]) {
+    if (adjacentTiles.hasOwnProperty(direction) && 
+    TileTypeDirections[tiles[adjacentTiles[direction]]].includes(oppositeDirection(direction))) {
+      connectedTiles.push({index: adjacentTiles[direction], direction});
     }
   }
   return connectedTiles;
-
 }
 
 export function stepsToReachFurthestPipeInLoop(input: string): number {
-  let {tiles, mapWidth} = interpretInput(input);
-
-  let mapHeight = Math.floor(tiles.length / mapWidth);
+  let {tiles, mapWidth, mapHeight} = interpretInput(input);
 
   // find the "animal" tile
   let animalTile = tiles.indexOf(TileType.ANIMAL);
@@ -132,18 +127,18 @@ export function stepsToReachFurthestPipeInLoop(input: string): number {
     let currentTile = possibleLoopStartTile;
     let startIndex = 0;
 
-    let connectedTiles: number[]
-    while((connectedTiles = findConnectedAdjacentTiles(tiles, currentTile, mapWidth, mapHeight)).length > 1) {
-      connectedTiles = connectedTiles.filter(t => t != previousTile);
+    let connectedTiles: {index: number, direction: Direction}[]
+    while((connectedTiles = findConnectedAdjacentTiles(tiles, currentTile.index, mapWidth, mapHeight)).length > 1) {
+      connectedTiles = connectedTiles.filter(t => t.index != previousTile);
       if (connectedTiles.length > 1) {
         console.error("Somehow a tile has more than one non-previous connected tiles!", connectedTiles, currentTile);
       }
       
-      if (connectedTiles[0] == animalTile) {
+      if (connectedTiles[0].index == animalTile) {
         return Math.floor((startIndex + 2) / 2);
       }
       startIndex += 1;
-      previousTile = currentTile; 
+      previousTile = currentTile.index; 
       currentTile = connectedTiles[0];
     }
   }
@@ -152,7 +147,88 @@ export function stepsToReachFurthestPipeInLoop(input: string): number {
 }
 
 export function tilesEnclosedBy(input: string): number {
-  return 0;
+  let {tiles, mapWidth, mapHeight} = interpretInput(input);
+
+  // find the "animal" tile
+  let animalTile = tiles.indexOf(TileType.ANIMAL);
+
+  let isPartOfLoop: boolean[] = Array(mapWidth * mapHeight).fill(false);
+  isPartOfLoop[animalTile] = true;
+
+  // find adjacent tiles of the animal tile
+  let animalAdjacentTiles = findConnectedAdjacentTiles(tiles, animalTile, mapWidth, mapHeight);
+  let loopTiles: {index: number, direction: Direction}[] = [];
+
+  for (let possibleLoopStartTile of animalAdjacentTiles) {
+    let previousTile = animalTile;
+    let currentTile = possibleLoopStartTile;
+
+    isPartOfLoop.fill(false); // Reset loop array
+    isPartOfLoop[animalTile] = true;
+    loopTiles = [currentTile]
+
+    let connectedTiles: {index: number, direction: Direction}[];
+    while((connectedTiles = findConnectedAdjacentTiles(tiles, currentTile.index, mapWidth, mapHeight)).length > 1) {
+      connectedTiles = connectedTiles.filter(t => t.index != previousTile);
+      if (connectedTiles.length > 1) {
+        console.error("Somehow a tile has more than one non-previous connected tiles!", connectedTiles, currentTile);
+      }
+      
+      loopTiles.push(connectedTiles[0])
+      isPartOfLoop[currentTile.index] = true;
+      if (connectedTiles[0].index == animalTile) {
+        break;
+      }
+      previousTile = currentTile.index; 
+      currentTile = connectedTiles[0];
+    }
+  }
+
+  // Replace the 'Animal' tile with the actual pipe connection
+  let animalTileNewType = [loopTiles[0].direction, oppositeDirection(loopTiles[loopTiles.length - 1].direction)];
+  for (let [k, v] of Object.entries(TileTypeDirections)) {
+    if (v.every(d => animalTileNewType.includes(d)) && animalTileNewType.every(d => v.includes(d))) {
+      tiles[animalTile] = parseInt(k);
+    }
+  }
+
+  // Having filled isPartOfLoop, iterate over it horizontally to find enclosed tiles
+  // TODO vertically?
+  let enclosedTiles = 0;
+
+  
+  for (let row = 0; row < mapHeight; row++) {
+    let isEnclosing = false;
+    let partialDirection: Direction | null = null;
+    for (let column = 0; column < mapWidth; column++) {
+      let tileIndex = row * mapWidth + column;
+
+      if (isPartOfLoop[tileIndex]) {
+        let northOrSouth = TileTypeDirections[tiles[tileIndex]].filter(d => d == Direction.NORTH || d == Direction.SOUTH);
+        if (tiles[tileIndex] == TileType.VERTICAL) {
+          isEnclosing = !isEnclosing;
+        }
+        else if (partialDirection != null && (TileTypeDirections[tiles[tileIndex]].includes(partialDirection))) {
+          partialDirection = null;
+        }
+        else if (partialDirection != null && (TileTypeDirections[tiles[tileIndex]].includes(oppositeDirection(partialDirection)))) {
+          partialDirection = null;
+          isEnclosing = !isEnclosing;
+        }
+        else {
+          if (northOrSouth.length == 1) {
+            partialDirection = northOrSouth[0];
+          }
+        }
+      } else {
+        if (isEnclosing) {
+          enclosedTiles++;
+        }
+      }
+
+    }
+  }
+  return enclosedTiles;
 }
 
 function main(data: string) {
