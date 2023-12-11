@@ -5,7 +5,7 @@ test("null example", () => {
 })
 
 test("oneline example", () => {
-    expect(sumOfShortestPathLengths("#..#..#")).toBe(5 + 5 + 10) // each . is doubled
+    expect(sumOfShortestPathLengths("#..#..#")).toBe(5 + 10 + 5) // each . is doubled
 })
 
 test("multiline example", () => {
