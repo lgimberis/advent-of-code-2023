@@ -151,8 +151,12 @@ export function stepsToReachFurthestPipeInLoop(input: string): number {
   return -1; // Couldn't find a loop
 }
 
+export function tilesEnclosedBy(input: string): number {
+  return 0;
+}
+
 function main(data: string) {
-  console.log(stepsToReachFurthestPipeInLoop(data));
+  console.log(tilesEnclosedBy(data));
 }
 
 if (require.main === module) {
