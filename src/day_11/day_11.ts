@@ -48,7 +48,7 @@ function expandSpace(data: DataType[], width: number, height: number): {rowIndic
       indices.push(currentIndex);
       currentIndex += 1;
       if (isExpanded) {
-        currentIndex += 1;
+        currentIndex += 999999;
       }
     }
     return indices;
