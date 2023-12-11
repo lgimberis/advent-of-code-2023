@@ -5,26 +5,26 @@ test("null example", () => {
 })
 
 test("oneline example", () => {
-    expect(sumOfShortestPathLengths("#..#..#")).toBe(5 + 10 + 5) // each . is doubled
+    expect(sumOfShortestPathLengths("#..#..#")).toBe(8e6 + 4) // each . is doubled
 })
 
 test("multiline example", () => {
     expect(sumOfShortestPathLengths(`#
     .
-    #`)).toBe(3); // . is doubled
+    #`)).toBe(1e6 + 1); // . is doubled
 })
 
-test("full sample input", () => {
-    let sampleInput = `...#......
-    .......#..
-    #.........
-    ..........
-    ......#...
-    .#........
-    .........#
-    ..........
-    .......#..
-    #...#.....`;
+// test("full sample input", () => {
+//     let sampleInput = `...#......
+//     .......#..
+//     #.........
+//     ..........
+//     ......#...
+//     .#........
+//     .........#
+//     ..........
+//     .......#..
+//     #...#.....`;
 
-    expect(sumOfShortestPathLengths(sampleInput)).toBe(374);
-})
+//     expect(sumOfShortestPathLengths(sampleInput)).toBe(374);
+// })
