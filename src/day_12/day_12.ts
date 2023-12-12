@@ -1,40 +1,31 @@
-function isValid(springSpec: string, springPattern: number[]): boolean {
+function iterate(springSpec: string, springPattern: number[]): number {
   // Returns if the configuration exactly matches the given spring pattern
   let consecutiveHashes = 0;
-  let observedPatterns: number[] = [];
-  for (let i = 0; i < springSpec.length; i++) {
-    if (springSpec[i] == '#') {
-      consecutiveHashes++;
-    } else {
-      if (consecutiveHashes != 0) observedPatterns.push(consecutiveHashes);
+  let hashStart = 0;
+  let springPatternIndex = 0;
+  for (let i = 0; i <= springSpec.length; i++) {
+    if (i == springSpec.length || springSpec[i] == '.') {
+      if (consecutiveHashes != 0) {
+        if (consecutiveHashes != springPattern[springPatternIndex]) {
+          return 0; // invalid
+        }
+        springPatternIndex++;
+      }
       consecutiveHashes = 0;
+      hashStart = i + 1;
+    }
+    else if (springSpec[i] == '?') {
+      let prefix = springSpec.slice(hashStart, i);
+      let postfix = springSpec.slice(i + 1);
+      let passedPattern = springPattern.slice(springPatternIndex);
+      return iterate(`${prefix}#${postfix}`, passedPattern)
+        + iterate(`${prefix}.${postfix}`, passedPattern);
+    }
+    else {
+      consecutiveHashes++;
     }
   }
-  if (consecutiveHashes != 0) observedPatterns.push(consecutiveHashes);
-  return observedPatterns.toString() == springPattern.toString();
-}
-
-function iterateCombinations(springSpec: string, springPattern: number[], index: number = 0): number {
-  while(springSpec[index] != '?' && index < springSpec.length) index++;
-  if (index >= springSpec.length) {
-    if (isValid(springSpec, springPattern)) {
-      return 1;
-    }
-    return 0;
-  }
-
-  let asDot = springSpec.slice(0, index) + '.' + springSpec.slice(index + 1);
-  let asHash = springSpec.slice(0, index) + '#' + springSpec.slice(index + 1);
-
-  let combinations = 0;
-  combinations += iterateCombinations(asDot, springPattern, index + 1);
-  combinations += iterateCombinations(asHash, springPattern, index + 1);
-  return combinations;
-}
-
-function getNumberOfArrangements(springSpecification: string, springPattern: number[]): number {
-  // Key idea #1: Any damaged spring that appears MUST be used and appear as one pattern or another
-  return iterateCombinations(springSpecification, springPattern)
+  return springPatternIndex == springPattern.length ? 1 : 0;
 }
 
 export function sumOfCounts(input: string): number {
@@ -45,7 +36,12 @@ export function sumOfCounts(input: string): number {
 
     let [springSpecification, springPattern] = lineParts;
     let nativeSpringPattern = springPattern.split(",").map(s => parseInt(s));
-    sum += getNumberOfArrangements(springSpecification, nativeSpringPattern);
+
+    // unfold
+    springSpecification = Array(5).fill(springSpecification).join("?");
+    nativeSpringPattern = Array(5).fill(nativeSpringPattern).flat();
+    let count = iterate(springSpecification, nativeSpringPattern);
+    console.log("Line %s done: %d", line, count);
   }
   return sum;
 }
