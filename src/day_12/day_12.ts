@@ -1,31 +1,39 @@
 function iterate(springSpec: string, springPattern: number[]): number {
   // Returns if the configuration exactly matches the given spring pattern
-  let consecutiveHashes = 0;
-  let hashStart = 0;
-  let springPatternIndex = 0;
-  for (let i = 0; i <= springSpec.length; i++) {
-    if (i == springSpec.length || springSpec[i] == '.') {
-      if (consecutiveHashes != 0) {
-        if (consecutiveHashes != springPattern[springPatternIndex]) {
-          return 0; // invalid
-        }
-        springPatternIndex++;
-      }
-      consecutiveHashes = 0;
-      hashStart = i + 1;
-    }
-    else if (springSpec[i] == '?') {
-      let prefix = springSpec.slice(hashStart, i);
-      let postfix = springSpec.slice(i + 1);
-      let passedPattern = springPattern.slice(springPatternIndex);
-      return iterate(`${prefix}#${postfix}`, passedPattern)
-        + iterate(`${prefix}.${postfix}`, passedPattern);
-    }
-    else {
-      consecutiveHashes++;
-    }
+
+  function getThreadHash(hashLength: number, patternIndex: number) {
+    return hashLength * springSpec.length + patternIndex;
   }
-  return springPatternIndex == springPattern.length ? 1 : 0;
+
+  let oldThreads: {[hash: number]: number} = {0: 1};
+  let threads: {[hash: number]: number} = {};
+  for (let i = 0; i <= springSpec.length; i++) {
+    threads = {};
+    for (let [hashStr, copies] of Object.entries(oldThreads)) {
+      let hash = parseInt(hashStr);
+      let hashLength = Math.floor(hash / springSpec.length);
+      let patternIndex = hash % springSpec.length;
+
+      if ((i == springSpec.length || springSpec[i] == '?' || springSpec[i] == '.') && (hashLength == 0 || hashLength == springPattern[patternIndex])) {
+        let hash = getThreadHash(0, patternIndex + (hashLength != 0 ? 1 : 0));
+        if (threads.hasOwnProperty(hash)) {
+          threads[hash] += copies;
+        } else {
+          threads[hash] = copies;
+        }
+      }
+      if (i < springSpec.length && (springSpec[i] == '?' || springSpec[i] == '#')) {
+        let hash = getThreadHash(hashLength + 1, patternIndex);
+        if (threads.hasOwnProperty(hash)) {
+          threads[hash] += copies;
+        } else {
+          threads[hash] = copies;
+        }
+      }
+    }
+    oldThreads = threads;
+  }
+  return oldThreads[springPattern.length] || 0;
 }
 
 export function sumOfCounts(input: string): number {
@@ -42,6 +50,7 @@ export function sumOfCounts(input: string): number {
     nativeSpringPattern = Array(5).fill(nativeSpringPattern).flat();
     let count = iterate(springSpecification, nativeSpringPattern);
     console.log("Line %s done: %d", line, count);
+    sum += count;
   }
   return sum;
 }
