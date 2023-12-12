@@ -1,4 +1,4 @@
-function isStrictlyValid(springSpec: string, springPattern: number[]): boolean {
+function isValid(springSpec: string, springPattern: number[]): boolean {
   // Returns if the configuration exactly matches the given spring pattern
   let consecutiveHashes = 0;
   let observedPatterns: number[] = [];
@@ -14,28 +14,10 @@ function isStrictlyValid(springSpec: string, springPattern: number[]): boolean {
   return observedPatterns.toString() == springPattern.toString();
 }
 
-function isWeaklyValid(springSpec: string, springPattern: number[]): boolean {
-  // Returns if the configuration COULD be valid
-  return true;
-  let mostConsecutiveHashes = Math.max(...springPattern);
-
-  let consecutiveHashes = 0;
-  let expectingNonHash = false;
-  for (let i = 0; i <= springSpec.length; i++) {
-    if (i < springSpec.length && springSpec[i] == '#') {
-      consecutiveHashes++;
-    } else {
-      if (consecutiveHashes > mostConsecutiveHashes) return false;
-      consecutiveHashes = 0;
-    }
-  }
-  return true;
-}
-
 function iterateCombinations(springSpec: string, springPattern: number[], index: number = 0): number {
   while(springSpec[index] != '?' && index < springSpec.length) index++;
   if (index >= springSpec.length) {
-    if (isStrictlyValid(springSpec, springPattern)) {
+    if (isValid(springSpec, springPattern)) {
       return 1;
     }
     return 0;
@@ -45,8 +27,8 @@ function iterateCombinations(springSpec: string, springPattern: number[], index:
   let asHash = springSpec.slice(0, index) + '#' + springSpec.slice(index + 1);
 
   let combinations = 0;
-  if (isWeaklyValid(asDot, springPattern)) combinations += iterateCombinations(asDot, springPattern, index + 1);
-  if (isWeaklyValid(asHash, springPattern)) combinations += iterateCombinations(asHash, springPattern, index + 1);
+  combinations += iterateCombinations(asDot, springPattern, index + 1);
+  combinations += iterateCombinations(asHash, springPattern, index + 1);
   return combinations;
 }
 
