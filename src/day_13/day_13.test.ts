@@ -18,8 +18,21 @@ test('vertical reflection', () => {
     expect(sumOfReflectionValues(testInput)).toBe(5);
 });
 
+test('another vertical reflection', () => {
+    let testInput = `
+    #.##..##
+    ..#.##.#
+    ##......
+    ##......
+    ..#.##.#
+    ..##..##
+    #.#.##.#`;
+    expect(sumOfReflectionValues(testInput)).toBe(5);
+})
+
 test('horizontal reflection', () => {
-    let testInput = `#...##..#
+    let testInput = `
+    #...##..#
     #....#..#
     ..##..###
     #####.##.
@@ -27,4 +40,34 @@ test('horizontal reflection', () => {
     ..##..###
     #....#..#`;
     expect(sumOfReflectionValues(testInput)).toBe(400);
+})
+
+test('another horizontal reflection', () => {
+    let testInput = `
+    #....#..#
+    ..##..###
+    #####.##.
+    #####.##.
+    ..##..###
+    #....#..#`;
+    expect(sumOfReflectionValues(testInput)).toBe(300);
+})
+
+test('combined test', () => {
+    let testInput = `.##..##.
+    .#.##.#.
+    #......#
+    #......#
+    .#.##.#.
+    .##..##.
+    .#.##.#.
+    
+    #...##..#..
+    #....#..#..
+    ..##..###..
+    #####.##...
+    #####.##...
+    ..##..###..
+    #....#..#..`
+    expect(sumOfReflectionValues(testInput)).toBe(404);
 })
