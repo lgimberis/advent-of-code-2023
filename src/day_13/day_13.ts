@@ -32,11 +32,12 @@ function interpretData(input: string): {horizontalMaps: number[][], verticalMaps
       }
       continue;
     }
-    imageHorizontalMap.push(mapStringToNumber(lines[i]));
+    let line = lines[i].trim();
+    imageHorizontalMap.push(mapStringToNumber(line));
 
-    for (let j = 0; j < lines[i].trim().length; j++) {
+    for (let j = 0; j < line.length; j++) {
       if (imageVerticalMap.length < j + 1) imageVerticalMap.push(0);
-      if (lines[i].trim()[j] == '#') {
+      if (line[j] == '#') {
         imageVerticalMap[j] += indexValue;
       }
     }
@@ -45,22 +46,41 @@ function interpretData(input: string): {horizontalMaps: number[][], verticalMaps
   return {horizontalMaps, verticalMaps};
 }
 
+export function differByPowerOfTwoOnly (x, y)
+{
+  let uncommonBits = x ^ y;
+  // If x is a power of 2, then x & x - 1 = 0
+  return (uncommonBits & uncommonBits - 1) == 0;
+}
+
 export function sumOfReflectionValues(input: string): number {
   let {horizontalMaps, verticalMaps} = interpretData(input);
 
   function hasViableReflection(map: number[]): {isReflected: boolean, reflectionIndex: number} {
     let isReflected = false;
     let reflectionIndex = 0;
+    let foundSmudge = false;
+
     for (let row = 0; row < map.length - 1; row++) {
-      if (map[row] == map[row + 1]) {
+      if (differByPowerOfTwoOnly(map[row], map[row + 1])) {
         // Found prospective row
+        foundSmudge = map[row] != map[row + 1];
         isReflected = true;
         reflectionIndex = row;
         let offsetMax = Math.min(map.length - 2 - row, row) // Either 0 or rowData.length, depends on whether row was closer to 0 or 
         for (let offset = 1; offset <= offsetMax; offset++) {
-          if (map[row + 1 + offset] != map[row - offset]) isReflected = false;
+          if (!differByPowerOfTwoOnly(map[row - offset], map[row + 1 + offset])) {
+            // Not different by a power of two -> will never be a smudge/reflection
+            isReflected = false;
+          } else {
+            if (map[row + 1 + offset] != map[row - offset]) {
+              // Due to a smudge
+              if (foundSmudge) isReflected = false; // If we already used our one 'smudge', this won't be a reflection
+              foundSmudge = true;
+            }
+          }
         }
-        if (isReflected) return {isReflected: true, reflectionIndex};
+        if (isReflected && foundSmudge) return {isReflected: true, reflectionIndex};
       }
     }
     return {isReflected: false, reflectionIndex};
@@ -68,20 +88,15 @@ export function sumOfReflectionValues(input: string): number {
 
   let sum = 0;
   for (let imageIndex = 0; imageIndex < horizontalMaps.length; imageIndex++) {
-    let horizontalReflection = hasViableReflection(horizontalMaps[imageIndex]);
-    
-    if (horizontalReflection.isReflected) {
-      sum += (horizontalReflection.reflectionIndex + 1) * 100;
-      // console.log(`image ${imageIndex} reflects vertically under ${horizontalReflection.reflectionIndex}`);
-      continue;
-    } 
     let verticalReflection = hasViableReflection(verticalMaps[imageIndex]);
     if (verticalReflection.isReflected) {
       sum += verticalReflection.reflectionIndex + 1;
-      // console.log(`image ${imageIndex} reflects horizontally after ${verticalReflection.reflectionIndex}`);
       continue;
     }
-    console.debug(`image ${imageIndex} is not reflected: ${horizontalMaps[imageIndex]}, ${verticalMaps[imageIndex]}`);
+    let horizontalReflection = hasViableReflection(horizontalMaps[imageIndex]);
+    if (horizontalReflection.isReflected) {
+      sum += (horizontalReflection.reflectionIndex + 1) * 100;
+    }
   }
   return sum;
 }
