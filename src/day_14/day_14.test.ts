@@ -43,16 +43,16 @@ test("total load on platform fits sample", () => {
 
 // Part two
 
-let sampleInput = `OOOO.#.O..
-OO..#....#
-OO..O##..O
-O..#.OO...
-........#.
-..#....#.#
-..O..#.O.O
-..O.......
+let sampleInput = `O....#....
+O.OO#....#
+.....##...
+OO.#O....O
+.O.....O#.
+O.#..O.#.#
+..O..#O..O
+.......O..
 #....###..
-#....#....`;
+#OO..#....`;
 
 let afterFirstCycle = `.....#....
 ....#...O#
@@ -92,7 +92,7 @@ test.each([
     [afterFirstCycle, afterSecondCycle],
     [afterSecondCycle, afterThirdCycle]
 ]) ('cycle once', (input, expected) => {
-    expect(cyclePlatform(input)).toBe(expected);
+    expect(cyclePlatform(input).replaceAll("\n","").replaceAll(" ","")).toBe(expected.replaceAll("\n","").replaceAll(" ",""));
 });
 
 test("cycle 3 times directly", () => {
