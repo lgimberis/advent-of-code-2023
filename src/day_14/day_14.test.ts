@@ -23,7 +23,7 @@ test("tilting platform works", () => {
     #....###..
     #....#....`
 
-    expect(tiltPlatformNorth(sampleInput)).toBe(expected);
+    expect(tiltPlatformNorth(sampleInput).replace("\n","").replaceAll(" ","")).toBe(expected.replace("\n","").replaceAll(" ",""));
 });
 
 test("total load on platform fits sample", () => {
