@@ -1,3 +1,7 @@
+export function cyclePlatform(input: string, cyles: number = 1): string {
+  return "";
+}
+
 export function tiltPlatformNorth(input: string): string {
   let lines = input.split("\n").map(s => s.trim()).filter(s => s.length != 0);
   if (lines.length <= 1) return input;
@@ -37,7 +41,7 @@ export function totalLoadOnPlatform(input: string): number {
 }
 
 function main(data: string) {
-  console.log(totalLoadOnPlatform(tiltPlatformNorth(data)));
+  console.log(totalLoadOnPlatform(cyclePlatform(data, 1e9)));
 }
 
 if (require.main === module) {
