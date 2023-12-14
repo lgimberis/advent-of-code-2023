@@ -1,5 +1,13 @@
+export function tiltPlatformNorth(input: string): string {
+  return "";
+}
+
+export function totalLoadOnPlatform(input: string): number {
+  return 0;
+}
+
 function main(data: string) {
-  console.log(data);
+  console.log(totalLoadOnPlatform(tiltPlatformNorth(data)));
 }
 
 if (require.main === module) {
