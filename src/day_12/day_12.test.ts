@@ -10,6 +10,5 @@ test.each([
     ['????.######..#####. 1,6,5', 2500],
     ['?###???????? 3,2,1', 506250],
 ]) ('test single lines', (input, expected) => {
-    debugger;
     expect(sumOfCounts(input)).toBe(expected);
 });

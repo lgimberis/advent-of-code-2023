@@ -1,4 +1,5 @@
 # Custom
+.vscode/
 # Remove compiled js files
 src/**/*.js
 

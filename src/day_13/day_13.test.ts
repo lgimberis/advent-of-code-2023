@@ -31,7 +31,6 @@ test('vertical reflection', () => {
     ..#.##.#.
     ..##..##.
     #.#.##.#.`;
-    debugger;
     expect(sumOfReflectionValues(testInput)).toBe(300);
 });
 
