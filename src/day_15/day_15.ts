@@ -1,5 +1,16 @@
+export function hash(input: string): number {
+  let hash = 0;
+  return hash;
+}
+
+
+export function sumOfHashes(input: string): number {
+  let sum = 0;
+  return sum;
+}
+
 function main(data: string) {
-  console.log(data);
+  console.log(sumOfHashes(data));
 }
 
 if (require.main === module) {
