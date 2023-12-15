@@ -1,4 +1,4 @@
-import { hash, sumOfHashes } from "./day_15";
+import { hash, sumOfHashes, totalFocusingPower } from "./day_15";
 
 test.each([
     ["HASH", 52],
@@ -17,6 +17,16 @@ test.each([
     expect(hash(input)).toBe(expected);
 });
 
-test('sum of hashes in sample test', () => {
+test("sum of hashes in sample test", () => {
     expect(sumOfHashes("rn=1,cm-,qp=3,cm=2,qp-,pc=4,ot=9,ab=5,pc-,pc=6,ot=7")).toBe(1320);
-})
+});
+
+// Part 2
+test("simple focusing power", () => {
+    expect(totalFocusingPower('rn=1')).toBe(1);
+});
+
+test("example focusing power", () => {
+    let sampleInput = "rn=1,cm-,qp=3,cm=2,qp-,pc=4,ot=9,ab=5,pc-,pc=6,ot=7";
+    expect(totalFocusingPower(sampleInput)).toBe(145);
+});

@@ -21,8 +21,14 @@ export function sumOfHashes(input: string): number {
   return sum;
 }
 
+export function totalFocusingPower(input: string): number {
+  let sum = 0;
+  return sum;
+}
+
 function main(data: string) {
   console.log(sumOfHashes(data));
+  console.log(totalFocusingPower(data));
 }
 
 if (require.main === module) {
