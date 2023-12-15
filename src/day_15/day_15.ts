@@ -1,11 +1,23 @@
 export function hash(input: string): number {
   let hash = 0;
+  for (let char of input) {
+    if (char == "\n") continue;
+    let ascii = char.charCodeAt(0);
+    hash += ascii;
+    hash *= 17;
+    hash %= 256;
+  }
   return hash;
 }
 
 
 export function sumOfHashes(input: string): number {
   let sum = 0;
+  for (let line of input.split("\n")) {
+    for (let word of line.split(",")) {
+      sum += hash(word);
+    }
+  }
   return sum;
 }
 

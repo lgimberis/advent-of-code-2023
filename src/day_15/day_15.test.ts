@@ -13,7 +13,7 @@ test.each([
     // pc- becomes 48.
     // pc=6 becomes 214.
     // ot=7 becomes 231.
-]) ("hashing %i gives %i", (input, expected) => {
+]) ("hashing %s gives %i", (input, expected) => {
     expect(hash(input)).toBe(expected);
 });
 
