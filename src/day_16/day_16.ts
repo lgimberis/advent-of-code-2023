@@ -41,12 +41,27 @@ function determineStep(char: string, step: number, columns: number): number[] {
   return [ step ];
 }
 
-export function numberOfEnergizedTiles(input: string): number {
+export function largestNumberOfEnergizedTiles(input: string): number {
   const { tiles, rows, columns } = interpretInput(input);
 
+  let mostEnergizedTiles = 0;
+  // From above / below
+  for (let i = 0; i < columns; i++) {
+    mostEnergizedTiles = Math.max(mostEnergizedTiles, numberOfEnergizedTiles(tiles, rows, columns, columns, i));
+    mostEnergizedTiles = Math.max(mostEnergizedTiles, numberOfEnergizedTiles(tiles, rows, columns, -columns, i + (rows - 1) * columns));
+  }
+  // From sides
+  for (let i = 0; i < rows; i++) {
+    mostEnergizedTiles = Math.max(mostEnergizedTiles, numberOfEnergizedTiles(tiles, rows, columns, 1, i * columns));
+    mostEnergizedTiles = Math.max(mostEnergizedTiles, numberOfEnergizedTiles(tiles, rows, columns, -1, columns - 1 + i * columns));
+  }
+  return mostEnergizedTiles;
+}
+
+export function numberOfEnergizedTiles(tiles: Record<number, string>, rows: number, columns: number, step: number, index: number): number {
   const isTileEnergized: boolean[] = Array(rows * columns).fill(false);
 
-  const threads = [{step: 1, index: 0}];
+  const threads = [{step, index}];
   const previousThreads: Record<number, number[]> = {};
   for (let key of Object.keys(tiles)) {
     previousThreads[key] = [];
@@ -85,12 +100,11 @@ export function numberOfEnergizedTiles(input: string): number {
     }
   }
 
-  console.log(isTileEnergized.map(s => s ? "#" : ".").map((s, i) => i % columns == columns - 1 ? `${s}\n` : s).join(""));
   return isTileEnergized.reduce((sum, tile) => (tile ? sum + 1 : sum), 0);
 }
 
 function main(data: string) {
-  console.log(numberOfEnergizedTiles(data));
+  console.log(largestNumberOfEnergizedTiles(data));
 }
 
 if (require.main === module) {

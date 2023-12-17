@@ -1,4 +1,4 @@
-import { numberOfEnergizedTiles } from "./day_16";
+import { largestNumberOfEnergizedTiles } from "./day_16";
 
 let sampleInput = String.raw`.|...\....
 |.-.\.....
@@ -12,5 +12,5 @@ let sampleInput = String.raw`.|...\....
 ..//.|....`;
 
 test("sample energized tiles", () => {
-    expect(numberOfEnergizedTiles(sampleInput)).toBe(46);
+    expect(largestNumberOfEnergizedTiles(sampleInput)).toBe(51);
 })
