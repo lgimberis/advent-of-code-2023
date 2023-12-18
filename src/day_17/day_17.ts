@@ -28,7 +28,7 @@ export function leastHeatLoss(input: string): number {
       threeTileRule[i].push({});
     }
   };
-  threeTileRule[0][0] = { "-1,1": 0}
+  threeTileRule[0][0] = { "-1,10": 0}
   
   function recalculateCost(sourceRow, sourceColumn) {
     // Recalculate costs of tiles surrounding this one
@@ -36,12 +36,11 @@ export function leastHeatLoss(input: string): number {
     //console.log(`Recalculating ${sourceRow},${sourceColumn}`)
 
     function isNewLowestCost(row, column, newDirection: number) {
-      let excludedIndex = `${newDirection},3`;
       for (let [key, cost] of Object.entries(threeTileRule[sourceRow][sourceColumn])) {
-        if (key == excludedIndex) continue; // Don't move 4 times in the same direction
 
         let newCost = cost + tiles[row][column];
         let [direction, distance] = key.split(",").map(s => parseInt(s));
+        if (distance > 10 || (distance < 4 && direction != newDirection)) continue; // Move no more than 10 in one direction, and no less than 4
 
         let newKey = (direction == newDirection ? `${newDirection},${distance + 1}` : `${newDirection},1`);
 
