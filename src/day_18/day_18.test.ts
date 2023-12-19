@@ -24,7 +24,7 @@ let dugTrench = `#######
 #...#..
 ##..###
 .#....#
-.######`; // 38 cubic metres
+.######`;
 
 let excavatedInterior = `#######
 #######
@@ -35,12 +35,30 @@ let excavatedInterior = `#######
 #####..
 #######
 .######
-.######` // 62 cubic metres
+.######`;
+
+let trickyTrenchToExcavate = `######
+#...##
+##..#.
+.##.#.
+..###.`
+
+let trickyExcavatedTrench = `######
+######
+#####.
+.####.
+..###.`
 
 describe('part 1 tests', () => {
     test('dig trench correctly', () => {
         expect(digTrench(exampleInput)).toStrictEqual(dugTrench);
-    })
+    });
+
+    test.each([
+        [trickyTrenchToExcavate, trickyExcavatedTrench]
+    ])('excavate trench mini tests', (input, expected) => {
+        expect(excavateInterior(input)).toStrictEqual(expected);
+    });
 
     test('excavate trench correctly', () => {
         expect(excavateInterior(dugTrench)).toStrictEqual(excavatedInterior);
