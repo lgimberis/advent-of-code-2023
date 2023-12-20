@@ -106,8 +106,79 @@ export function sumOfAcceptedParts(data: string) {
   return sum;
 }
 
+// Part 2
+interface Range {
+  min: number;
+  max: number;
+}
+interface PartRange {
+  x: Range;
+  m: Range;
+  a: Range;
+  s: Range;
+}
+
+function passCombinationsThroughWorkflow(rules: Rule[], partRange: PartRange): { destination: string, range: PartRange}[] {
+  let processedCombinations: { destination: string, range: PartRange}[] = [];
+  for (let rule of rules) {
+    if (rule.attributeTarget == undefined) {
+      processedCombinations.push({destination: rule.destination, range: partRange});
+    } else {
+      let newRange = {x: {...partRange.x}, m: {...partRange.m}, a: {...partRange.a}, s: {...partRange.s} };
+      let key = rule.greaterThan ? "min" : "max";
+      newRange[rule.attributeTarget][key] = rule.targetValue + (rule.greaterThan ? 1 : -1);
+      processedCombinations.push({destination: rule.destination, range: newRange});
+      let oppositeKey = rule.greaterThan ? "max" : "min";
+      partRange[rule.attributeTarget][oppositeKey] = rule.targetValue;
+    }
+  }
+  return processedCombinations;
+}
+
+export function totalCombinations(data: string): number {
+  // Extract workflows only
+  let lines = data.split("\n").map(line => line.trim());
+  let newlineIndex = lines.indexOf("");
+
+  if (newlineIndex != -1) lines = lines.slice(0, newlineIndex);
+  let workflowArray = lines.filter(line => line).map(line => interpretWorkflow(line));
+  let workflows: {[name: string]: Workflow} = {};
+  for (let workflow of workflowArray) {
+    workflows[workflow.name] = workflow;
+  }
+
+  let combinations = 0;
+  let partRange = {
+    x: { min: 1, max: 4000 },
+    m: { min: 1, max: 4000 },
+    a: { min: 1, max: 4000 },
+    s: { min: 1, max: 4000 },
+  }
+  let pendingRanges: {destination: string, range: PartRange}[] = [{ destination: "in", range: partRange }];
+
+  function isRangeValid(range: PartRange) {
+    return range.x.max >= range.x.min && range.m.max >= range.m.min && range.a.max >= range.a.min && range.s.max >= range.s.min;
+  }
+  while (pendingRanges.length > 0) {
+    let {destination, range} = pendingRanges.pop();
+    if (!isRangeValid(range)) continue;
+    if (destination == "R") continue;
+    if (destination == "A") {
+      let thisRangeCombinations = 1;
+      thisRangeCombinations *= (range.x.max - range.x.min + 1) * (range.m.max - range.m.min + 1) * (range.a.max - range.a.min + 1) * (range.s.max - range.s.min + 1);
+      combinations += thisRangeCombinations;
+      continue;
+    }
+    if (!workflows.hasOwnProperty(destination)) console.error(`Workflows does not have workflow ${destination}`);
+    let newRanges = passCombinationsThroughWorkflow(workflows[destination].rules, range);
+    pendingRanges = pendingRanges.concat(newRanges);
+  }
+  return combinations;
+}
+
 function main(data: string) {
-  console.log(sumOfAcceptedParts(data));
+  //console.log(sumOfAcceptedParts(data)); // p1
+  console.log(totalCombinations(data)); // p2
 }
 
 if (require.main === module) {
