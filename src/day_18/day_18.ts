@@ -9,7 +9,7 @@ function interpretInput(input: string): Instruction[] {
 
   let lines = input.split("\n").map(line => line.trim()).filter(line => line);
   for (let line of lines) {
-    let match = line.match(/(\w) (\d+) \((.+)\)/);
+    let match = line.match(/(\w) (\d+) \(#(.+)\)/);
     if (!match || match.length < 4) {
       console.error(`Line ${line} does not match regex`);
       continue;
@@ -151,8 +151,42 @@ export function volumeOfLagoon(input: string): number {
   return count;
 }
 
+export function trueVolumeOfLagoon(input: string): number {
+  let instructions = interpretInput(input);
+
+  let correctedInstructions: { direction: number, distance: number }[] = [];
+  for (let instruction of instructions) {
+    let direction = parseInt(instruction.colour[instruction.colour.length - 1]);
+    let distance = parseInt("0x" + instruction.colour.slice(0, instruction.colour.length - 1));
+    direction = (direction + 1) % 4;
+    correctedInstructions.push( { direction, distance } )
+  }
+
+  let y = 0;
+  let perimeter = 0;
+  let interiorPoints = 0;
+
+  // Shamefully, I did have to seek outside help to solve this one, as I knew neither of these theorems.
+  // Shoelace theorem
+  for (let { direction, distance } of correctedInstructions) {
+    perimeter += distance;
+    if (direction % 2 == 0) {
+      // N/S
+      let deltaY = (direction == 0 ? -distance : distance);
+      y += deltaY;
+    } else {
+      // E/W
+      let deltaX = (direction == 1 ? distance : -distance);
+      interiorPoints += deltaX * y;
+    }
+  }
+  // Pick's theorem
+  return Math.abs(interiorPoints) + perimeter / 2 + 1;
+}
+
 function main(data: string) {
-  console.log(volumeOfLagoon(excavateInterior(digTrench(data))));
+  // console.log(volumeOfLagoon(excavateInterior(digTrench(data)))); // Part 1
+  console.log(trueVolumeOfLagoon(data)); // Part 2
 }
 
 if (require.main === module) {
