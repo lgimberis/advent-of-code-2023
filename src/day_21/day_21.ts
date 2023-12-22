@@ -28,11 +28,10 @@ function interpretInput(input: string) {
 
       function findNeighbours() {
         let neighbours = [];
-        let candidates = [{row: row - 1, column}, {row: row + 1, column}, {row, column: column - 1}, {row, column: column + 1}];
-        for (let {row, column} of candidates) {
-          // TODO map repeats infinitely
-          if (row >= 0 && row <= rows - 1 && column >= 0 && column <= columns - 1 && lines[row][column] != '#') {
-            neighbours.push({row, column});
+        let candidates = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+        for (let [deltaRow, deltaColumn] of candidates) {
+          if (lines[(rows + row + deltaRow) % rows][(columns + column + deltaColumn) % columns] != '#') {
+            neighbours.push({row: deltaRow, column: deltaColumn});
           }
         }
         return neighbours;
@@ -51,15 +50,20 @@ function interpretInput(input: string) {
 export function numberOfPlotsReachableAfterSteps(data: string, steps: number): number {
   let { map, rows, columns, startRow, startColumn } = interpretInput(data);
 
-  const createIndex = (row, column) => row * columns + column;
-  const undoIndex = (index) => ({row: Math.floor(index / columns), column: index % columns});
+  const createIndex = (row, column) => `${row},${column}`;
+  const undoIndex = (index: string) => {
+    let [row, column] = index.split(",").map(s => parseInt(s));
+    return {row, column};
+  }
 
   let reachedTiles = new Set([createIndex(startRow, startColumn)]);
   for (let step = 0; step < steps; step++) {
     let newTiles = new Set([])
     for (let index of reachedTiles) {
       let {row, column} = undoIndex(index);
-      for (let tile of map[row][column].openNeighbours) newTiles.add(createIndex(tile.row, tile.column));
+      let mapRowIndex = (rows + (row % rows)) % rows;
+      let mapColumnIndex = (columns + (column % columns)) % columns;
+      for (let tile of map[mapRowIndex][mapColumnIndex].openNeighbours) newTiles.add(createIndex(row + tile.row, column + tile.column));
     }
     reachedTiles = newTiles;
   }
