@@ -30,6 +30,7 @@ function interpretInput(input: string) {
         let neighbours = [];
         let candidates = [{row: row - 1, column}, {row: row + 1, column}, {row, column: column - 1}, {row, column: column + 1}];
         for (let {row, column} of candidates) {
+          // TODO map repeats infinitely
           if (row >= 0 && row <= rows - 1 && column >= 0 && column <= columns - 1 && lines[row][column] != '#') {
             neighbours.push({row, column});
           }
@@ -66,7 +67,8 @@ export function numberOfPlotsReachableAfterSteps(data: string, steps: number): n
 }
 
 function main(data: string) {
-  console.log(numberOfPlotsReachableAfterSteps(data, 64));
+  console.log(numberOfPlotsReachableAfterSteps(data, 64)); // p1, prints 3751
+  console.log(numberOfPlotsReachableAfterSteps(data, 26501365)); 
 }
 
 if (require.main === module) {
