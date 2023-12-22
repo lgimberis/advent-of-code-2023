@@ -56,6 +56,9 @@ export function numberOfPlotsReachableAfterSteps(data: string, steps: number): n
     return {row, column};
   }
 
+  let numberOfPlots = 0;
+  let oldTiles: Set<string> = new Set([]);
+
   let reachedTiles = new Set([createIndex(startRow, startColumn)]);
   for (let step = 0; step < steps; step++) {
     let newTiles = new Set([])
@@ -63,11 +66,18 @@ export function numberOfPlotsReachableAfterSteps(data: string, steps: number): n
       let {row, column} = undoIndex(index);
       let mapRowIndex = (rows + (row % rows)) % rows;
       let mapColumnIndex = (columns + (column % columns)) % columns;
-      for (let tile of map[mapRowIndex][mapColumnIndex].openNeighbours) newTiles.add(createIndex(row + tile.row, column + tile.column));
+      for (let tile of map[mapRowIndex][mapColumnIndex].openNeighbours) {
+        let newIndex = createIndex(row + tile.row, column + tile.column);
+        if (!oldTiles.has(newIndex)) {
+          newTiles.add(newIndex);
+          oldTiles.add(newIndex);
+        }
+      }
     }
+    if (step % 2 != steps % 2) numberOfPlots += newTiles.size; // step = 0 => Step 1, which is odd
     reachedTiles = newTiles;
   }
-  return reachedTiles.size;
+  return numberOfPlots;
 }
 
 function main(data: string) {
