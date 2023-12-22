@@ -19,7 +19,7 @@ describe('part 1 tests', () => {
         [2, 4],
         [3, 6],
         [6, 16]
-    ])("given example", (steps, expected) => {
+    ])("given example with %i steps", (steps, expected) => {
         expect(numberOfPlotsReachableAfterSteps(exampleInput, steps)).toBe(expected);
     })
 });
